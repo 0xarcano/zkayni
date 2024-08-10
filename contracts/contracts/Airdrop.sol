@@ -5,9 +5,9 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract Airdrop is Ownable {
-    IERC20 public token;
-    uint256 public totalAmount;
-    uint256 public numBeneficiaries;
+    IERC20 private token;
+    uint256 private totalAmount;
+    uint256 private numBeneficiaries;
     uint256 public amountPerBeneficiary;
     bytes32[] private joinKeys;
     
@@ -50,6 +50,14 @@ contract Airdrop is Ownable {
         balances[_beneficiary] -= _amount;
 
         emit VoucherCreated(_beneficiary, _amount);
+    }
+
+    function getJoinKeys() external view onlyOwner returns (bytes32[] memory)  {
+        return joinKeys;
+    }
+
+     function getTotalAmount() external view onlyOwner returns (uint256)  {
+        return totalAmount;
     }
 
     function withdraw(address _thirdParty, uint256 _amount) public {

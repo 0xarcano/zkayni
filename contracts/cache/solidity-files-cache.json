@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/home/paulr/zk/zkayni/contracts/contracts/Airdrop.sol": {
-      "lastModificationDate": 1723248102791,
-      "contentHash": "9362e5e68f1bdd98791f9fea50991fce",
+      "lastModificationDate": 1723310461475,
+      "contentHash": "8ba6eb100657d7bc0499b479d5f0fd0e",
       "sourceName": "contracts/Airdrop.sol",
       "solcConfig": {
         "version": "0.8.24",

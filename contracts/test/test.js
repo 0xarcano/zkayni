@@ -24,11 +24,17 @@ describe("Airdrop contract", function () {
     // console.log("Owner balance:", await token.balanceOf(owner.address));
     // console.log("Requested total amount:", totalAmount);
     await token.transfer(airdropContractAddress,totalAmount)
-    await airdrop.createGroup(totalAmount, numBeneficiaries);
+    let keys = [];
+    for (let i = 0; i < 10; i++) {
+      keys.push(Math.floor(Math.random() * 10000)); // Generates a random integer between 0 and 99
+    }
+    await airdrop.createGroup(totalAmount, keys);
 
-    console.log("Airdrop total amount: ", await airdrop.totalAmount());
+    console.log("Airdrop total amount: ", await airdrop.getTotalAmount());
     // console.log("Airdrop number of beneficiaries: ", airdrop.numBeneficiaries);
     // console.log("Airdrop amount per beneficiary: ", airdrop.amountPerBeneficiary);
+
+    console.log("Airdrop join access keys: ", await airdrop.getJoinKeys());
 
     expect(await airdrop.amountPerBeneficiary()).to.equal(100);
 

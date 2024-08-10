@@ -9,7 +9,8 @@ contract Airdrop is Ownable {
     uint256 public totalAmount;
     uint256 public numBeneficiaries;
     uint256 public amountPerBeneficiary;
-
+    bytes32[] private joinKeys;
+    
     mapping(address => bool) public beneficiaries;
     mapping(address => uint256) public balances;
 
@@ -21,13 +22,20 @@ contract Airdrop is Ownable {
         token = IERC20(_token);
     }
 
-    function createGroup(uint256 _totalAmount, uint256 _numBeneficiaries) external onlyOwner {
+    function createGroup(uint256 _totalAmount, uint256[] memory _keygenValues) external onlyOwner {
         totalAmount = _totalAmount;
-        numBeneficiaries = _numBeneficiaries;
-        amountPerBeneficiary = _totalAmount / _numBeneficiaries;
-        token.transfer(address(this), _totalAmount);
+        numBeneficiaries = _keygenValues.length;
+        generateJoinKeys(_keygenValues);
+        amountPerBeneficiary = totalAmount / numBeneficiaries;
+        token.transfer(address(this), totalAmount);
+        emit GroupCreated(msg.sender, _totalAmount, numBeneficiaries);
+    }
 
-        emit GroupCreated(msg.sender, _totalAmount, _numBeneficiaries);
+    function generateJoinKeys( uint256[] memory _keygenValues) private {
+        joinKeys = new bytes32[](_keygenValues.length);
+        for (uint i = 0; i < _keygenValues.length; i++) {
+            joinKeys[i] = keccak256(abi.encodePacked(_keygenValues[i]));
+        }
     }
 
     function joinGroup(address _beneficiary) public {

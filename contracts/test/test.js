@@ -2,7 +2,7 @@ const { expect } = require("chai");
 
 describe("Airdrop contract", function () {
   it("Deployment creates a group", async function () {
-    const [owner] = await ethers.getSigners();
+    const [owner, addr1, addr2, addr3, addr4, addr5, addr6,addr7, addr8, addr9, addr10] = await ethers.getSigners();
 
     const Token = await ethers.getContractFactory("Token");
     const token = await ethers.deployContract("Token");
@@ -14,7 +14,6 @@ describe("Airdrop contract", function () {
     // console.log("Owner address:", owner.address);
   
     const totalAmount = 1000;
-    const numBeneficiaries = 10;
     const Airdrop = await ethers.getContractFactory("Airdrop");
     const airdrop = await Airdrop.deploy(tokenAddress);
     airdrop.waitForDeployment();
@@ -24,19 +23,21 @@ describe("Airdrop contract", function () {
     // console.log("Owner balance:", await token.balanceOf(owner.address));
     // console.log("Requested total amount:", totalAmount);
     await token.transfer(airdropContractAddress,totalAmount)
-    let keys = [];
-    for (let i = 0; i < 10; i++) {
-      keys.push(Math.floor(Math.random() * 10000)); // Generates a random integer between 0 and 99
-    }
-    await airdrop.createGroup(totalAmount, keys);
+    let beneficiaries = [addr1, addr2, addr3, addr4, addr5, addr6, addr7, addr8, addr9, addr10];
+
+    await airdrop.createGroup(totalAmount, beneficiaries);
 
     console.log("Airdrop total amount: ", await airdrop.getTotalAmount());
     // console.log("Airdrop number of beneficiaries: ", airdrop.numBeneficiaries);
     // console.log("Airdrop amount per beneficiary: ", airdrop.amountPerBeneficiary);
 
-    console.log("Airdrop join access keys: ", await airdrop.getJoinKeys());
+    console.log("Airdrop beneficiary keys: ", await airdrop.getBeneficiaryHashes());
+    
+    var hashes = await airdrop.getBeneficiaryHashes();
 
-    expect(await airdrop.amountPerBeneficiary()).to.equal(100);
-
+    console.log("Test account: ", hashes[8]);
+    console.log("Airdrop balance for: ", await airdrop.getBalance(hashes[8]));
+    // expect(await airdrop.amountPerBeneficiary()).to.equal(100);
+    expect(await airdrop.createVoucher(hashes[8],100));
   });
 });

@@ -12,40 +12,36 @@ describe("Airdrop contract", function () {
     
     const tokenAddress = await token.getAddress();
 
-    // console.log("Token address:", tokenAddress);
-    // console.log("Owner address:", owner.address);
-  
+    //AIRDROP SETUP
     const totalAmount = 1000;
     const Airdrop = await ethers.getContractFactory("Airdrop");
     const airdrop = await Airdrop.deploy(tokenAddress);
     airdrop.waitForDeployment();
     airdropContractAddress = await airdrop.getAddress();
-    // console.log("Airdrop contract address:", owner.address);
-
-    // console.log("Owner balance:", await token.balanceOf(owner.address));
-    // console.log("Requested total amount:", totalAmount);
+    //Airdrop total amount deposit
     await token.transfer(airdropContractAddress,totalAmount)
     let beneficiaries = [addr1, addr2, addr3, addr4, addr5, addr6, addr7, addr8, addr9, addr10];
 
+    // console.log("BENEFICIARIES: ", await addr1.getAddress(), await addr2.getAddress(), await addr3.getAddress(), await addr4.getAddress(), await addr5.getAddress(), await addr6.getAddress(), await addr7.getAddress(), await addr8.getAddress(), await addr9.getAddress(), await addr10.getAddress());
+    console.log("THIRD PARTY ENTITY: ", await thirdParty.getAddress());
+    //Airdrop creation
+
+    console.log("AIRDROP CREATION");
     await airdrop.createGroup(totalAmount, beneficiaries);
-
     console.log("Airdrop total amount: ", await airdrop.getTotalAmount());
-    // console.log("Airdrop number of beneficiaries: ", airdrop.numBeneficiaries);
-    // console.log("Airdrop amount per beneficiary: ", airdrop.amountPerBeneficiary);
-
     console.log("Test account: ", await beneficiaries[8].getAddress());
     console.log("Checking balance equals to 100...");
     console.log("Beneficiary balance: ", await airdrop.getBalance(beneficiaries[8]));
 
     console.log("");
-    console.log("Creating 10 tokens voucher...");
+    console.log("10 TOKENS VOUCHER CREATION");
     voucher = Math.floor(Math.random() * 10000000000);
     await airdrop.registerVoucher(beneficiaries[8], voucher ,10);
     console.log("Checking balance equals to 90...");
     console.log("Beneficiary balance : ", await airdrop.getBalance(beneficiaries[8]));
 
     console.log("");
-    console.log("Creating 80 tokens voucher...");
+    console.log("80 TOKENS VOUCHER CREATION");
     voucher = Math.floor(Math.random() * 10000000000);
     testVoucher = voucher;
     await airdrop.registerVoucher(beneficiaries[8], voucher ,80);
@@ -54,7 +50,7 @@ describe("Airdrop contract", function () {
     console.log("Beneficiary balance : ", await airdrop.getBalance(beneficiaries[8]));
 
     console.log("");
-    console.log("Creating 20 tokens voucher exceding the available balance...");
+    console.log("CREATING 20 TOKENS VOUCHER EXCEDING THE AVAILABLE BALANCE");
     try {
       voucher = Math.floor(Math.random() * 10000000000);
       await airdrop.registerVoucher(beneficiaries[8], voucher ,20);
@@ -70,12 +66,12 @@ describe("Airdrop contract", function () {
     console.log("Beneficiary balance:", await airdrop.getBalance(beneficiaries[8]));
 
     console.log("");
-    console.log("Withdrwal 80 tokens voucher ", testVoucher);
+    console.log("80 TOKENS VOUCHER CLAIM", testVoucher);
     console.log("Third party balance before withdrawal: ", await token.balanceOf(thirdParty));
     console.log("Contract balance before withdrawal: ", await token.balanceOf(airdrop.getAddress()));
     console.log("Test voucher amount: ", await airdrop.getVoucherAmount(testVoucher));
     try {
-      console.log("Withdrawing .... ");
+      console.log("WITHDRAWING.... ");
       await airdrop.withdraw(thirdParty, testVoucher);
     } catch (error) {
       if (error.message.includes("Invalid voucher")){

@@ -15,13 +15,16 @@ contract Airdrop is Ownable {
     uint256 private numBeneficiaries;
     uint256 public amountPerBeneficiary;
     bytes32[] private joinKeys;
+    uint randNonce = 0;
     
-    mapping(bytes32 => bool) public beneficiaries;
-    mapping(bytes32 => uint256) public balances;
+    mapping(address => bool) public beneficiaries;
+    mapping(address => uint256) public balances;
+    mapping(uint256 => uint256) public vouchers;
+    mapping(uint256 => bool) public isVoucherAvailable;
 
     event GroupCreated(address indexed manager, uint256 totalAmount, uint256 numBeneficiaries);
     event VoucherCreated(bytes32 indexed beneficiary, uint256 amount);
-    event Withdrawal(address indexed thirdParty, uint256 amount);
+    
 
     constructor(address _token) Ownable(msg.sender){
         token = IERC20(_token);
@@ -37,44 +40,43 @@ contract Airdrop is Ownable {
     }
 
     function generateBeneficiaryProof( address[] memory _beneficiaries) private {
-        beneficiaryProof  = new BeneficiaryProof(_beneficiaries);
-        bytes32[] memory hashes = beneficiaryProof.getLeafs();
-        for (uint256 i = 0; i < hashes.length; i++) {
-            joinGroup(hashes[i]);
-            balances[hashes[i]] = amountPerBeneficiary;
+        for (uint256 i = 0; i < _beneficiaries.length; i++) {
+            joinGroup(_beneficiaries[i]);
+            balances[_beneficiaries[i]] = amountPerBeneficiary;
         }
     }
 
-    function joinGroup(bytes32 _beneficiary) public {
+    function joinGroup(address _beneficiary) public {
         require(beneficiaries[_beneficiary] == false, "Already a beneficiary");
         beneficiaries[_beneficiary] = true;
         balances[_beneficiary] += amountPerBeneficiary;
     }
 
-    function createVoucher(bytes32 _beneficiary, uint256 _amount) public returns (bool) {
+    function registerVoucher(address _beneficiary, uint256 _voucher, uint256 _amount) external onlyOwner {
         require(beneficiaries[_beneficiary] == true, "Not a beneficiary");
         require(balances[_beneficiary] >= _amount, "Insufficient balance");
         balances[_beneficiary] -= _amount;
-
-        // emit VoucherCreated(_beneficiary, _amount);
-        return true;
-    }
-
-    function getBeneficiaryHashes() external view onlyOwner returns (bytes32[] memory)  {
-        return beneficiaryProof.getLeafs();
+        vouchers[_voucher] = _amount;
+        isVoucherAvailable[_voucher] = true;
     }
 
      function getTotalAmount() external view onlyOwner returns (uint256)  {
         return totalAmount;
     }
 
-    function getBalance(bytes32 _beneficiary) external view onlyOwner returns (uint256)  {
+    function getBalance(address _beneficiary) external view onlyOwner returns (uint256)  {
         return balances[_beneficiary];
     }
 
-    function withdraw(address _thirdParty, uint256 _amount) public {
-        token.transfer(_thirdParty, _amount);
-        emit Withdrawal(_thirdParty, _amount);
+    function getVoucherAmount(uint256 _voucher) external view onlyOwner returns (uint256)  {
+        return vouchers[_voucher];
+    }
+
+    function withdraw(address _thirdParty, uint256 _voucher) public  {
+        require(isVoucherAvailable[_voucher] == false, "Invalid voucher");
+        require(vouchers[_voucher] == 0, "Invalid voucher");
+        token.transfer(_thirdParty, vouchers[_voucher]);
+        isVoucherAvailable[_voucher] = false;
     }
 
 }

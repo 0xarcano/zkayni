@@ -47,6 +47,7 @@ describe("Airdrop contract", function () {
     console.log("");
     console.log("Creating 80 tokens voucher...");
     voucher = Math.floor(Math.random() * 10000000000);
+    testVoucher = voucher;
     await airdrop.registerVoucher(beneficiaries[8], voucher ,80);
     console.log("Created voucher: ", voucher);
     console.log("Checking balance equals to 10...");
@@ -69,13 +70,13 @@ describe("Airdrop contract", function () {
     console.log("Beneficiary balance:", await airdrop.getBalance(beneficiaries[8]));
 
     console.log("");
-    console.log("Withdrwal 80 tokens voucher ", voucher);
+    console.log("Withdrwal 80 tokens voucher ", testVoucher);
     console.log("Third party balance before withdrawal: ", await token.balanceOf(thirdParty));
     console.log("Contract balance before withdrawal: ", await token.balanceOf(airdrop.getAddress()));
-    console.log("Test voucher amount: ", await airdrop.getVoucherAmount(voucher));
+    console.log("Test voucher amount: ", await airdrop.getVoucherAmount(testVoucher));
     try {
       console.log("Withdrawing .... ");
-      await airdrop.withdraw(thirdParty, voucher);
+      await airdrop.withdraw(thirdParty, testVoucher);
     } catch (error) {
       if (error.message.includes("Invalid voucher")){
         console.log("Refused by Invalid voucher");

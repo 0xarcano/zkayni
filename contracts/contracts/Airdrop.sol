@@ -73,8 +73,8 @@ contract Airdrop is Ownable {
     }
 
     function withdraw(address _thirdParty, uint256 _voucher) public  {
-        require(isVoucherAvailable[_voucher] == false, "Invalid voucher");
-        require(vouchers[_voucher] == 0, "Invalid voucher");
+        require(isVoucherAvailable[_voucher] != false, "Invalid voucher");
+        require(vouchers[_voucher] != 0, "Invalid voucher amount");
         token.transfer(_thirdParty, vouchers[_voucher]);
         isVoucherAvailable[_voucher] = false;
     }
